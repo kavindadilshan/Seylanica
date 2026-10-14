@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Menu, Package, ShoppingBag, X } from 'lucide-react'
 import { Logo } from '../brand/Logo'
 import { WhatsAppIcon } from '../brand/WhatsAppIcon'
+import { FacebookIcon } from '../brand/FacebookIcon'
 import { NAV_LINKS, SITE } from '../../config/site'
 import { useCurrency } from '../../context/CurrencyContext'
 import { useCart } from '../../context/CartContext'
@@ -52,9 +53,14 @@ export function Header() {
           <p>
             Exporting <em className="font-display text-sm text-gold-200 not-italic">Cinnamomum verum</em> from {SITE.exportPort} to the EU, UK & USA
           </p>
-          <a href={whatsappLink('Hello Seylanica, I have an inquiry.')} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-gold">
-            <WhatsAppIcon className="h-3.5 w-3.5" /> Orders on WhatsApp: {SITE.whatsappDisplay}
-          </a>
+          <div className="flex items-center gap-4">
+            <a href={whatsappLink('Hello Seylanica, I have an inquiry.')} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-gold">
+              <WhatsAppIcon className="h-3.5 w-3.5" /> Orders on WhatsApp: {SITE.whatsappDisplay}
+            </a>
+            <a href={SITE.facebookUrl} target="_blank" rel="noreferrer" aria-label="Seylanica on Facebook" className="hover:text-gold">
+              <FacebookIcon className="h-4 w-4" />
+            </a>
+          </div>
         </div>
       </div>
 
@@ -119,6 +125,9 @@ export function Header() {
               ))}
               <div className="mt-3 flex items-center justify-between gap-3">
                 <CurrencyToggle />
+                <a href={SITE.facebookUrl} target="_blank" rel="noreferrer" aria-label="Seylanica on Facebook" className="grid h-10 w-10 place-items-center rounded-full text-cinnamon hover:bg-cinnamon/5">
+                  <FacebookIcon className="h-5 w-5" />
+                </a>
                 <Link to="/quote?type=sample" className="btn-primary !px-5 !py-2.5">
                   <Package className="h-4 w-4" /> Request Samples
                 </Link>

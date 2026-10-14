@@ -113,3 +113,24 @@
   body:has(> dialog[open]) > #root { display: none !important; }
   dialog[open] { position: static; margin: 0; }
 }
+
+/* Long-form article typography (Knowledge Hub). Markup comes from Markdown via scripts/blog-plugin.mjs. */
+@utility prose-article {
+  @apply text-[17px] leading-[1.8] text-ink/85;
+
+  & > * + * { @apply mt-5; }
+  & h2 { @apply mt-12 scroll-mt-28 text-3xl leading-tight font-semibold text-cinnamon sm:text-4xl; }
+  & h3 { @apply mt-9 scroll-mt-28 font-sans text-xl font-bold text-cinnamon; }
+  & a { @apply font-semibold text-cinnamon-700 underline decoration-gold decoration-2 underline-offset-4 hover:text-gold-600; }
+  & strong { @apply font-bold text-cinnamon; }
+  & ul { @apply list-disc space-y-2 pl-6 marker:text-gold-600; }
+  & ol { @apply list-decimal space-y-2 pl-6 marker:font-bold marker:text-gold-600; }
+  & blockquote { @apply rounded-r-2xl border-l-4 border-gold bg-sand/70 px-6 py-4 text-cinnamon/80 italic; }
+  & .table-wrap { @apply overflow-x-auto rounded-2xl border border-cinnamon/10; }
+  & table { @apply w-full min-w-[520px] text-left text-sm; }
+  & th { @apply bg-cinnamon px-4 py-3 font-semibold text-cream; }
+  & td { @apply border-t border-cinnamon/10 px-4 py-3 align-top; }
+  & tr:nth-child(even) td { @apply bg-sand/40; }
+  & hr { @apply my-10 border-cinnamon/10; }
+  & code { @apply rounded bg-sand px-1.5 py-0.5 text-[0.9em]; }
+}

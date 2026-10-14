@@ -1,7 +1,9 @@
 import { SITE } from '../config/site'
 import { PRODUCTS } from '../data/products'
 import { FAQ } from '../data/faq'
+import { AUTHOR, BLOG_CATEGORIES, POSTS, authorPath, blogPath, categoryPath, getCategory, getPost, postImage } from '../data/blog'
 import type { Product } from '../types'
+import type { PostMeta } from '../types/blog'
 
 /*
  * SEO / AEO / GEO METADATA
@@ -20,11 +22,18 @@ export interface PageMeta {
   description: string
   image?: string
   noindex?: boolean
+  /** Open Graph article data for blog posts. */
+  article?: { published: string; modified: string; section?: string; tags: string[] }
   jsonLd: object[]
 }
 
-/** Indexable routes, in sitemap order. Add new pages here. */
-export const ROUTES = ['/', '/products', '/quality', '/buyer-hub', '/shop', '/quote'] as const
+/** Indexable static routes, in sitemap order. Add new pages here. */
+export const ROUTES = ['/', '/products', '/quality', '/buyer-hub', '/shop', '/quote', '/blog'] as const
+
+/** Every indexable URL: static pages, blog categories, articles and the author page. */
+export function allRoutes(): string[] {
+  return [...ROUTES, ...BLOG_CATEGORIES.map((c) => categoryPath(c.slug)), ...POSTS.map((p) => blogPath(p.slug)), authorPath()]
+}
 
 const abs = (path: string) => (path.startsWith('http') ? path : `${SITE.url}${path}`)
 const ORG_ID = `${SITE.url}/#organization`
@@ -60,6 +69,12 @@ const PAGES: Record<string, Omit<PageMeta, 'path' | 'jsonLd'> & { crumb: string 
     title: 'Buy Ceylon Cinnamon Sticks & Powder Online',
     description:
       'Order True Ceylon cinnamon sticks and lab-tested powder in 50 g to 1 kg packs, priced in USD, EUR or GBP. Checkout and delivery confirmed on WhatsApp.',
+  },
+  '/blog': {
+    crumb: 'Blog',
+    title: 'Ceylon Cinnamon Knowledge Hub: Guides for Buyers & Brands',
+    description:
+      'Practical guides on Ceylon cinnamon grades, lab testing, coumarin, export documents, Incoterms, sourcing and private label, written for importers, spice brands and food manufacturers.',
   },
   '/quote': {
     crumb: 'Request a Quote',
@@ -193,10 +208,139 @@ function webPageLd(path: string, title: string, description: string, extra: obje
   }
 }
 
+const PERSON_ID = `${SITE.url}${authorPath()}#person`
+const BLOG_ID = `${SITE.url}/blog#blog`
+
+function personLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    '@id': PERSON_ID,
+    name: AUTHOR.name,
+    honorificPrefix: AUTHOR.honorific,
+    jobTitle: AUTHOR.jobTitle,
+    description: AUTHOR.bio,
+    image: abs(AUTHOR.image),
+    url: abs(authorPath()),
+    sameAs: [AUTHOR.linkedin],
+    worksFor: { '@id': ORG_ID },
+    knowsAbout: ['Ceylon cinnamon', 'Spice export', 'Food quality testing', 'International trade'],
+  }
+}
+
+function crumbsLd(items: [string, string][]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map(([name, path], i) => ({ '@type': 'ListItem', position: i + 1, name, item: abs(path) })),
+  }
+}
+
+function blogPostingLd(p: PostMeta) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    '@id': `${abs(blogPath(p.slug))}#article`,
+    headline: p.title,
+    description: p.description,
+    image: abs(postImage(p)),
+    datePublished: p.date,
+    dateModified: p.updated ?? p.date,
+    author: { '@type': 'Person', '@id': PERSON_ID, name: AUTHOR.name, url: abs(authorPath()) },
+    publisher: { '@id': ORG_ID },
+    mainEntityOfPage: abs(blogPath(p.slug)),
+    articleSection: getCategory(p.category)?.name,
+    keywords: p.tags.join(', '),
+    wordCount: p.wordCount,
+    inLanguage: 'en',
+    isPartOf: { '@type': 'Blog', '@id': BLOG_ID, name: `${SITE.brand} Knowledge Hub` },
+  }
+}
+
+function blogLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    '@id': BLOG_ID,
+    name: `${SITE.brand} Knowledge Hub`,
+    url: abs('/blog'),
+    publisher: { '@id': ORG_ID },
+    blogPost: POSTS.slice(0, 20).map((p) => ({ '@type': 'BlogPosting', headline: p.title, url: abs(blogPath(p.slug)), datePublished: p.date })),
+  }
+}
+
+/** Meta for /blog/category/*, /blog/<slug> and the author page, or null if the path is not one of them. */
+function blogMeta(path: string): PageMeta | null {
+  const base = [organizationLd(), websiteLd()]
+  let m: RegExpMatchArray | null
+  if ((m = path.match(/^\/blog\/category\/([^/]+)$/))) {
+    const cat = getCategory(m[1])
+    if (!cat) return null
+    const title = withBrand(`${cat.name}: Ceylon Cinnamon Guides`)
+    return {
+      path,
+      title,
+      description: cat.description,
+      image: cat.image,
+      jsonLd: [
+        ...base,
+        webPageLd(path, title, cat.description, { '@type': 'CollectionPage' }),
+        crumbsLd([
+          ['Home', '/'],
+          ['Blog', '/blog'],
+          [cat.name, path],
+        ]),
+      ],
+    }
+  }
+  if ((m = path.match(/^\/blog\/([^/]+)$/))) {
+    const post = getPost(m[1])
+    if (!post) return null
+    const cat = getCategory(post.category)
+    const crumbs: [string, string][] = [
+      ['Home', '/'],
+      ['Blog', '/blog'],
+    ]
+    if (cat) crumbs.push([cat.name, categoryPath(cat.slug)])
+    crumbs.push([post.title, path])
+    return {
+      path,
+      title: withBrand(post.title),
+      description: post.description,
+      image: postImage(post),
+      article: { published: post.date, modified: post.updated ?? post.date, section: cat?.name, tags: post.tags },
+      jsonLd: [...base, blogPostingLd(post), personLd(), crumbsLd(crumbs)],
+    }
+  }
+  if (path === authorPath()) {
+    const title = withBrand(`${AUTHOR.honorific} ${AUTHOR.name}, Author`)
+    const description = `Articles by ${AUTHOR.name} on Ceylon cinnamon grades, quality testing, export and sourcing: ${POSTS.length} guides in the ${SITE.brand} Knowledge Hub.`
+    return {
+      path,
+      title,
+      description,
+      image: AUTHOR.image,
+      jsonLd: [
+        ...base,
+        webPageLd(path, title, description, { '@type': 'ProfilePage', mainEntity: { '@id': PERSON_ID } }),
+        personLd(),
+        crumbsLd([
+          ['Home', '/'],
+          ['Blog', '/blog'],
+          [AUTHOR.name, path],
+        ]),
+      ],
+    }
+  }
+  return null
+}
+
 /* ------------------------------ Public API ------------------------------ */
 
 export function getPageMeta(pathname: string): PageMeta {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname
+  const blog = blogMeta(path)
+  if (blog) return blog
   const page = PAGES[path]
   if (!page) return { path, ...NOT_FOUND, title: withBrand(NOT_FOUND.title), noindex: true, jsonLd: [] }
 
@@ -215,6 +359,9 @@ export function getPageMeta(pathname: string): PageMeta {
         webPageLd(path, title, page.description),
         productListLd(PRODUCTS.filter((p) => !p.comingSoon && p.retailPacks.some((r) => r.priceUsd != null))),
       )
+      break
+    case '/blog':
+      jsonLd.push(webPageLd(path, title, page.description, { '@type': 'CollectionPage' }), blogLd())
       break
     case '/quality':
       jsonLd.push(
@@ -248,7 +395,7 @@ export function headTags(meta: PageMeta): HeadTag[] {
     { tag: 'title', text: meta.title },
     { tag: 'meta', attrs: { name: 'description', content: meta.description } },
     { tag: 'meta', attrs: { name: 'robots', content: meta.noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1' } },
-    { tag: 'meta', attrs: { property: 'og:type', content: 'website' } },
+    { tag: 'meta', attrs: { property: 'og:type', content: meta.article ? 'article' : 'website' } },
     { tag: 'meta', attrs: { property: 'og:site_name', content: SITE.brand } },
     { tag: 'meta', attrs: { property: 'og:locale', content: 'en_US' } },
     { tag: 'meta', attrs: { property: 'og:title', content: meta.title } },
@@ -261,6 +408,17 @@ export function headTags(meta: PageMeta): HeadTag[] {
     { tag: 'meta', attrs: { name: 'twitter:description', content: meta.description } },
     { tag: 'meta', attrs: { name: 'twitter:image', content: image } },
   ]
+  if (meta.article) {
+    const a = meta.article
+    tags.push(
+      { tag: 'meta', attrs: { name: 'author', content: AUTHOR.name } },
+      { tag: 'meta', attrs: { property: 'article:published_time', content: a.published } },
+      { tag: 'meta', attrs: { property: 'article:modified_time', content: a.modified } },
+      { tag: 'meta', attrs: { property: 'article:author', content: AUTHOR.linkedin } },
+    )
+    if (a.section) tags.push({ tag: 'meta', attrs: { property: 'article:section', content: a.section } })
+    for (const t of a.tags) tags.push({ tag: 'meta', attrs: { property: 'article:tag', content: t } })
+  }
   if (!meta.noindex) tags.push({ tag: 'link', attrs: { rel: 'canonical', href: url } })
   for (const ld of meta.jsonLd) tags.push({ tag: 'script', attrs: { type: 'application/ld+json' }, text: JSON.stringify(ld) })
   return tags

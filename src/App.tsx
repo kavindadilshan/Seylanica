@@ -11,6 +11,10 @@ const BuyerHubPage = lazy(() => import('./pages/BuyerHubPage'))
 const QualityPage = lazy(() => import('./pages/QualityPage'))
 const QuotePage = lazy(() => import('./pages/QuotePage'))
 const ShopPage = lazy(() => import('./pages/ShopPage'))
+const BlogPage = lazy(() => import('./pages/BlogPage'))
+const BlogCategoryPage = lazy(() => import('./pages/BlogCategoryPage'))
+const BlogPostPage = lazy(() => import('./pages/BlogPostPage'))
+const AuthorPage = lazy(() => import('./pages/AuthorPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 /** Router-agnostic app: wrapped in BrowserRouter (main.tsx) or StaticRouter (entry-server.tsx). */
@@ -27,6 +31,10 @@ export default function App() {
               <Route path="quality" element={<QualityPage />} />
               <Route path="quote" element={<QuotePage />} />
               <Route path="shop" element={<ShopPage />} />
+              <Route path="blog" element={<BlogPage />} />
+              <Route path="blog/category/:category" element={<BlogCategoryPage />} />
+              <Route path="blog/:slug" element={<BlogPostPage />} />
+              <Route path="author/kavinda-dilshan" element={<AuthorPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>

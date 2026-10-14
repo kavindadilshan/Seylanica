@@ -49,6 +49,15 @@ src/
   index.css               # Tailwind v4 @theme tokens (colours, fonts, animations)
 ```
 
+## Knowledge Hub (blog)
+
+108 articles in 9 topic clusters live in `src/content/blog/*.md`, authored by Mr. Kavinda Dilshan
+(`AUTHOR` in `src/data/blog.ts`). Format and writing rules: `src/content/blog/README.md`.
+
+- **New article:** add a `.md` file; it appears in `/blog`, its category page, the sitemap, RSS and `llms.txt` on the next build.
+- **Real photos (planned):** save `public/images/blog/<article-slug>.jpg` (or `.webp`/`.png`). It is used automatically; until then each article shows its category's default image.
+- `npm run build` prerenders every page and writes `sitemap.xml`, `robots.txt`, `feed.xml`, `llms.txt` and `llms-full.txt`.
+
 ## Before launch (TODO)
 
 1. **Verify every spec value** in `src/data/products.ts` against your SLS 81 grading and lab reports.

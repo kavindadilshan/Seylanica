@@ -4,6 +4,7 @@ import { Logo } from '../brand/Logo'
 import { WhatsAppIcon } from '../brand/WhatsAppIcon'
 import { FacebookIcon } from '../brand/FacebookIcon'
 import { NAV_LINKS, SITE } from '../../config/site'
+import { BLOG_CATEGORIES, categoryPath } from '../../data/blog'
 import { whatsappLink } from '../../lib/whatsapp'
 
 export function Footer() {
@@ -70,6 +71,19 @@ export function Footer() {
             </li>
           </ul>
         </div>
+      </div>
+
+      <div className="container-x border-t border-cream/10 py-8">
+        <h3 className="font-sans text-xs font-bold tracking-[0.2em] text-gold uppercase">Knowledge Hub</h3>
+        <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+          {BLOG_CATEGORIES.map((c) => (
+            <li key={c.slug}>
+              <Link to={categoryPath(c.slug)} className="hover:text-gold">
+                {c.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <div className="border-t border-cream/10">

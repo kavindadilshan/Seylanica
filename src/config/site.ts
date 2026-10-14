@@ -70,4 +70,5 @@ export const NAV_LINKS = [
   { to: '/buyer-hub', label: 'B2B Buyer Hub' },
   { to: '/quality', label: 'Quality & Origin' },
   { to: '/shop', label: 'Shop' },
+  { to: '/blog', label: 'Blog' },
 ] as const

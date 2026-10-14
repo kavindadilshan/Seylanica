@@ -5,6 +5,7 @@ import { TrustBanner } from '../components/home/TrustBanner'
 import { TraceabilityFlow } from '../components/home/TraceabilityFlow'
 import { SampleCTA } from '../components/home/SampleCTA'
 import { FaqSection } from '../components/home/FaqSection'
+import { LatestArticles } from '../components/home/LatestArticles'
 import { ProductMatrix } from '../components/product/ProductMatrix'
 import { QuoteForm } from '../components/forms/QuoteForm'
 import { SectionHeading } from '../components/ui/SectionHeading'
@@ -120,6 +121,8 @@ export default function HomePage() {
       <SampleCTA />
 
       <FaqSection />
+
+      <LatestArticles />
 
       {/* Inquiry form */}
       <section id="inquiry" className="bg-sand py-24">

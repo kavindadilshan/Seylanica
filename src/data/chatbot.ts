@@ -153,6 +153,17 @@ export const INTENTS: Intent[] = [
     ],
   },
   {
+    id: 'blog',
+    keywords: ['blog', 'article', 'articles', 'guide', 'guides', 'learn', 'read more', 'knowledge', 'how to import'],
+    reply:
+      'Our Knowledge Hub has 100+ practical guides on Ceylon cinnamon grades, lab testing, export documents, Incoterms, sourcing and private label, written for importers, brands and food makers.',
+    actions: [
+      { kind: 'link', label: 'Open the Knowledge Hub', to: '/blog' },
+      { kind: 'link', label: 'Import & export guides', to: '/blog/category/import-export' },
+    ],
+    suggestions: ['Product grades', 'Documents & COA'],
+  },
+  {
     id: 'contact',
     keywords: ['contact', 'email', 'phone', 'call', 'human', 'agent', 'person', 'talk', 'speak'],
     reply: 'Happy to connect you with our export team. WhatsApp is the fastest way to reach us.',
