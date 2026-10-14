@@ -1,0 +1,115 @@
+@import 'tailwindcss';
+
+/*
+ * Seylanica design tokens (Tailwind v4 CSS-first config).
+ * Every token below becomes a utility, e.g. bg-cinnamon, text-gold, border-forest/20.
+ */
+@theme {
+  /* Brand palette — Earthy Luxury */
+  --color-cinnamon: #4a2311;
+  --color-cinnamon-950: #24100a;
+  --color-cinnamon-900: #331709;
+  --color-cinnamon-700: #6b3a1f;
+  --color-cinnamon-500: #a0612f;
+  --color-cinnamon-300: #d4a77f;
+  --color-cinnamon-100: #f1e3d6;
+
+  --color-gold: #d4af37;
+  --color-gold-600: #b8932a;
+  --color-gold-200: #efdc9a;
+
+  --color-forest: #1e3a2b;
+  --color-forest-700: #2c5240;
+  --color-forest-100: #dfe9e2;
+
+  --color-cream: #faf8f5;
+  --color-sand: #f2ece4;
+  --color-ink: #1d1410;
+
+  /* Typography */
+  --font-display: 'Cormorant Garamond', ui-serif, Georgia, serif;
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+
+  /* Motion */
+  --animate-fade-up: fade-up 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-ring: pulse-ring 2.4s ease-out infinite;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgb(37 211 102 / 0.55); }
+    80%, 100% { box-shadow: 0 0 0 18px rgb(37 211 102 / 0); }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-cream font-sans text-ink antialiased;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight;
+  }
+  ::selection {
+    @apply bg-gold/40 text-cinnamon-950;
+  }
+}
+
+/* Reusable component utilities (v4: @utility makes them @apply-able and variant-aware) */
+@utility container-x {
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+@utility eyebrow {
+  @apply text-xs font-bold tracking-[0.22em] text-gold-600 uppercase;
+}
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold disabled:cursor-not-allowed disabled:opacity-60;
+}
+@utility btn-primary {
+  @apply btn bg-cinnamon text-cream shadow-lg shadow-cinnamon/20 hover:-translate-y-0.5 hover:bg-cinnamon-700;
+}
+@utility btn-gold {
+  @apply btn bg-gold text-cinnamon-950 shadow-lg shadow-gold/25 hover:-translate-y-0.5 hover:bg-gold-200;
+}
+@utility btn-outline {
+  @apply btn border border-cinnamon/25 bg-white/60 text-cinnamon backdrop-blur hover:border-cinnamon hover:bg-white;
+}
+@utility btn-ghost-light {
+  @apply btn border border-cream/30 text-cream hover:border-gold hover:text-gold;
+}
+@utility card {
+  @apply rounded-3xl border border-cinnamon/10 bg-white shadow-[0_1px_0_rgb(74_35_17/0.04),0_12px_40px_-18px_rgb(74_35_17/0.25)];
+}
+@utility field {
+  @apply w-full rounded-xl border border-cinnamon/15 bg-white px-4 py-3 text-sm text-ink transition placeholder:text-cinnamon/40 focus:border-gold focus:ring-4 focus:ring-gold/20 focus:outline-none;
+}
+@utility label {
+  @apply mb-1.5 block text-xs font-semibold tracking-wider text-cinnamon-700 uppercase;
+}
+@utility grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  .no-print { display: none !important; }
+  /* When a spec sheet is open, print only the sheet. */
+  body:has(> dialog[open]) > #root { display: none !important; }
+  dialog[open] { position: static; margin: 0; }
+}
